@@ -324,7 +324,7 @@ endef
 TARGET_DEVICES += tl-wa901nd-v5
 
 define Device/tl-wdr3320-v2
-  $(Device/tplink-4mlzma)
+  $(Device/tplink-16mlzma)
   DEVICE_TITLE := TP-LINK TL-WDR3320 v2
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport
   BOARDNAME := TL-WDR3320-v2
