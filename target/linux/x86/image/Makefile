@@ -9,11 +9,11 @@ include $(INCLUDE_DIR)/image.mk
 
 export PATH=$(TARGET_PATH):/sbin
 
-GRUB2_MODULES = biosdisk boot chain configfile ext2 linux ls part_msdos reboot serial test vga
+GRUB2_MODULES = biosdisk boot chain configfile ext2 linux ls part_msdos reboot serial vga
 GRUB2_MODULES_LEGACY = $(GRUB2_MODULES)
 GRUB2_MODULES_LEGACY += part_gpt search fat exfat
 GRUB2_MODULES_EFI = boot chain configfile ext2 linux ls part_msdos reboot serial part_gpt part_msdos search fat exfat ext2 efi_gop efi_uga gfxterm
-GRUB2_MODULES_ISO = biosdisk boot chain configfile iso9660 linux ls part_msdos reboot serial test vga
+GRUB2_MODULES_ISO = biosdisk boot chain configfile iso9660 linux ls part_msdos reboot serial vga
 GRUB_TERMINALS =
 GRUB_SERIAL_CONFIG =
 GRUB_TERMINAL_CONFIG =
@@ -48,11 +48,13 @@ SIGNATURE:=$(shell perl -e 'printf("%08x", rand(0xFFFFFFFF))')
 EFI_SIGNATURE:=$(strip $(shell uuidgen | sed "s/[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]$$/0002/" | tr '[a-z]' '[A-Z]'))
 ROOTPART:=$(call qstrip,$(CONFIG_TARGET_ROOTFS_PARTNAME))
 ROOTPART:=$(if $(ROOTPART),$(ROOTPART),PARTUUID=$(SIGNATURE)-02)
-EFI_ROOTPART:=$(call qstrip,$(CONFIG_TARGET_ROOTFS_PARTNAME))
-EFI_ROOTPART:=$(if $(EFI_ROOTPART),$(EFI_ROOTPART),PARTUUID=$(shell echo $(EFI_SIGNATURE) | sed 's/00$$/02/'))
 
 GRUB_TIMEOUT:=$(call qstrip,$(CONFIG_GRUB_TIMEOUT))
 GRUB_TITLE:=$(call qstrip,$(CONFIG_GRUB_TITLE))
+
+ifneq ($(CONFIG_TARGET_x86_xen_domu),)
+  GRUB_ROOT = xen/xvda,msdos1
+endif
 
 ifneq ($(CONFIG_GRUB_IMAGES)$(CONFIG_EFI_IMAGES),)
 
@@ -287,9 +289,9 @@ ifneq ($(CONFIG_QCOW2_IMAGES),)
 endif
 
 define Image/Build/gzip
-	gzip -f9n $(BIN_DIR)/$(IMG_PREFIX)-combined-$(1).img
-ifneq ($(CONFIG_GRUB_IMAGES),)
 	gzip -f9n $(BIN_DIR)/$(IMG_PREFIX)-rootfs-$(1).img
+ifneq ($(CONFIG_GRUB_IMAGES),)
+	gzip -f9n $(BIN_DIR)/$(IMG_PREFIX)-combined-$(1).img
 endif
 ifneq ($(CONFIG_EFI_IMAGES),)
 	gzip -f9n $(BIN_DIR)/$(IMG_PREFIX)-uefi-gpt-$(1).img
