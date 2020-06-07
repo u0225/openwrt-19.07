@@ -10,10 +10,10 @@ ARCH:=i386
 BOARD:=x86
 BOARDNAME:=x86
 FEATURES:=squashfs ext4 vdi vmdk pcmcia targz fpu
-SUBTARGETS:=generic legacy geode 64
+SUBTARGETS:=generic legacy geode 64 zen
 MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 
-KERNEL_PATCHVER:=4.14
+KERNEL_PATCHVER:=4.19
 
 KERNELNAME:=bzImage
 
