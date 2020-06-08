@@ -8,48 +8,30 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
+PKG_NAME:=grub
 PKG_CPE_ID:=cpe:/a:gnu:grub2
-PKG_VERSION:=2.04
-PKG_RELEASE:=1
+PKG_VERSION:=2.02
+PKG_RELEASE:=3
 
-PKG_SOURCE:=grub-$(PKG_VERSION).tar.xz
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/grub
-PKG_HASH:=e5292496995ad42dabe843a0192cf2a2c502e7ffcc7479398232b10a472df77d
+PKG_HASH:=810b3798d316394f94096ec2797909dbf23c858e48f7b3830826b8daa06b7b0f
 
+PKG_FIXUP:=autoreconf
 HOST_BUILD_PARALLEL:=1
 
 PKG_SSP:=0
 
 PKG_FLAGS:=nonshared
 
-PATCH_DIR := ../patches
-HOST_PATCH_DIR := ../patches
-HOST_BUILD_DIR := $(BUILD_DIR_HOST)/$(PKG_NAME)-$(PKG_VERSION)
+PATCH_DIR:=../patches
+
+HOST_BUILD_DIR ?= $(BUILD_DIR_HOST)/$(PKG_NAME)-$(GRUB_PLATFORM)/$(PKG_NAME)$(if $(PKG_VERSION),-$(PKG_VERSION))
+HOST_BUILD_PREFIX := $(STAGING_DIR_HOST)
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
 
-define Package/grub2/Default
-  CATEGORY:=Boot Loaders
-  SECTION:=boot
-  TITLE:=GRand Unified Bootloader
-  URL:=http://www.gnu.org/software/grub/
-  DEPENDS:=@TARGET_x86||TARGET_x86_64
-endef
-
-HOST_BUILD_PREFIX := $(STAGING_DIR_HOST)
-
-CONFIGURE_VARS += \
-	grub_build_mkfont_excuse="don't want fonts"
-
-CONFIGURE_ARGS += \
-	--target=$(REAL_GNU_TARGET_NAME) \
-	--disable-werror \
-	--disable-nls \
-	--disable-device-mapper \
-	--disable-libzfs \
-	--disable-grub-mkfont \
-	--with-platform=none
 
 HOST_CONFIGURE_VARS += \
 	grub_build_mkfont_excuse="don't want fonts"
@@ -60,7 +42,8 @@ HOST_CONFIGURE_ARGS += \
 	--sbindir="$(STAGING_DIR_HOST)/bin" \
 	--disable-werror \
 	--disable-libzfs \
-	--disable-nls
+	--disable-nls \
+	--with-platform=$(GRUB_PLATFORM)
 
 HOST_MAKE_FLAGS += \
 	TARGET_RANLIB=$(TARGET_RANLIB) \
@@ -70,4 +53,3 @@ define Host/Configure
 	$(SED) 's,(RANLIB),(TARGET_RANLIB),' $(HOST_BUILD_DIR)/grub-core/Makefile.in
 	$(Host/Configure/Default)
 endef
-
